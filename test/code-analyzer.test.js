@@ -106,6 +106,26 @@ const test10 = () => {
     );
 };
 
+const test11 = () => {
+    assert.equal(
+        JSON.stringify(extractBody('obj = { "table":"customers", "limit":10 };\n' +
+            'dbParam = JSON.stringify(obj);\n' +
+            'xmlhttp = new XMLHttpRequest();\n' +
+            'xmlhttp.onreadystatechange = function() {\n' +
+            '    if (this.readyState == 4 && this.status == 200) {\n' +
+            '        document.getElementById("demo").innerHTML = this.responseText;\n' +
+            '    }\n' +
+            '};')[1].line),1
+    );
+};
+
+
+const test12 = () => {
+    assert.equal(
+        JSON.stringify(extractBody('if (x > 2){x = 2}else{x = 5}')[1].line),1
+    );
+};
+
 describe('ALL TESTS', () => {
 
     it('Test 1:', test1);
@@ -118,6 +138,10 @@ describe('ALL TESTS', () => {
     it('Test 8:', test8);
     it('Test 9:', test9);
     it('Test 10:',test10);
+    it('Test 11:',test11);
+    it('Test 12:',test12);
+
+
 
 });
 

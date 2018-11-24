@@ -26,9 +26,9 @@ const _parser_FunctionDeceleration = (funcDec) => {
 
 const _parser_ExpressionStatement = (expSt) => {
 
+    //if(expSt.expression.type != 'AssignmentExpression') return [];
 
     let line = expSt.loc.start.line;
-
     let type = expSt.expression.type;
     let name = expSt.expression.left.name;
     let condition = '';
@@ -53,8 +53,6 @@ const _parser_WhileStatement = (whileSt) => {
 
     arr = arr.concat(_parser_body(body));
 
-
-
     return arr;
 };
 
@@ -67,7 +65,8 @@ const _parser_ForStatement = (forSt) => {
     let value = '';
 
     let arr = [{line:line, type:type, name:name, condition: condition, value:value}];
-    arr = arr.concat(_parser_body(forSt.body.body));
+
+    arr = arr.concat(_parser_body(forSt.body));
 
     return arr;
 };
@@ -91,7 +90,7 @@ const _parser_IfStatement = (ifSt) => {
     let value =  '';
     let arr = [{line:line, type:type, name:name, condition: condition, value:value}];
     arr = arr.concat(_parser_body([ifSt.consequent]));
-    if (ifSt.alternate.type == 'IfStatement'){
+    if (ifSt.alternate != null && ifSt.alternate.type == 'IfStatement'){
         arr = arr.concat(_parser_IfElse(ifSt.alternate));
     }
     else {
@@ -134,8 +133,6 @@ const _parser_IfElse = (ifSt) => {
     return arr;
 };
 
-
-
 //*********************************************************************//
 
 const extractBody = (codeToParse) => {
@@ -150,10 +147,10 @@ const extractBody = (codeToParse) => {
 const _parser_body = (JExpBody) => {
     let arr =[];
     for (let i = 0; i < JExpBody.length ; i++) {
+        //if (JExpBody[i] == null) continue;
         switch (JExpBody[i].type) {
         case 'FunctionDeclaration': arr = arr.concat(_parser_FunctionDeceleration(JExpBody[i])); break;
         case 'WhileStatement': arr = arr.concat(_parser_WhileStatement(JExpBody[i])); break;
-        case 'IfStatement': arr = arr.concat(_parser_IfStatement(JExpBody[i])); break;
         default: arr = arr.concat(_parser_body_helper(JExpBody[i])); break;
         }}
     return arr;
@@ -162,10 +159,21 @@ const _parser_body = (JExpBody) => {
 const _parser_body_helper = (JExpBody) => {
     let arr =[];
     switch (JExpBody.type) {
+    case 'IfStatement': arr = arr.concat(_parser_IfStatement(JExpBody)); break;
     case 'ForStatement': arr = arr.concat(_parser_ForStatement(JExpBody)); break;
     case 'VariableDeclaration': arr = arr.concat(_parser_VariableDeclarationStatement(JExpBody)); break;
+    default: arr = arr.concat(_parser_body_helper2(JExpBody)); break;
+    }
+    return arr;
+};
+
+const _parser_body_helper2 = (JExpBody) => {
+    let arr =[];
+    switch (JExpBody.type) {
     case 'ReturnStatement': arr = arr.concat(_parser_ReturnStatement(JExpBody)); break;
     case 'ExpressionStatement': arr = arr.concat(_parser_ExpressionStatement(JExpBody)); break;
+    case 'BlockStatement': arr = arr.concat(_parser_body(JExpBody.body)); break;
+
     default: break;
     }
     return arr;
