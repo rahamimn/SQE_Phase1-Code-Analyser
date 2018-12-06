@@ -26,11 +26,11 @@ const _parser_FunctionDeceleration = (funcDec) => {
 
 const _parser_ExpressionStatement = (expSt) => {
 
-    //if(expSt.expression.type != 'AssignmentExpression') return [];
+    if(expSt.expression.type != 'AssignmentExpression') return [];
 
     let line = expSt.loc.start.line;
     let type = expSt.expression.type;
-    let name = expSt.expression.left.name;
+    let name = escodegen.generate(expSt.expression.left);
     let condition = '';
     let value = escodegen.generate(expSt.expression.right);
 
@@ -66,7 +66,7 @@ const _parser_ForStatement = (forSt) => {
 
     let arr = [{line:line, type:type, name:name, condition: condition, value:value}];
 
-    arr = arr.concat(_parser_body(forSt.body));
+    arr = arr.concat(_parser_body([forSt.body]));
 
     return arr;
 };
@@ -147,7 +147,7 @@ const extractBody = (codeToParse) => {
 const _parser_body = (JExpBody) => {
     let arr =[];
     for (let i = 0; i < JExpBody.length ; i++) {
-        //if (JExpBody[i] == null) continue;
+        if (JExpBody[i] == null) continue;
         switch (JExpBody[i].type) {
         case 'FunctionDeclaration': arr = arr.concat(_parser_FunctionDeceleration(JExpBody[i])); break;
         case 'WhileStatement': arr = arr.concat(_parser_WhileStatement(JExpBody[i])); break;
